@@ -138,9 +138,10 @@ library_compilation()
 
     # Compilation
     cd "$scr"
-    compilation=$(echo "$compiler" "$compiler_options" "$lib_dependencies" "$modules_dir" *.f90)
+    # compilation=$(echo "$compiler" "$compiler_options" "$lib_dependencies" "$modules_dir" *.f90)
+    compilation=$(echo "$compiler" "$compiler_options" *.f)
     compilation=${compilation//"\\"/"\\\\"} # changing one backslashe to two backslashes
-#    echo "$compilation"
+    echo "$compilation"
     eval "$compilation"
 
     # Moving new object files
