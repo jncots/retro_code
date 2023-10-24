@@ -61,8 +61,6 @@ sep=$( path_separator "$root_path" )
 scr="${arg_val[1]}"
 out="${arg_val[2]}$sep${arg_val[3]}"
 
-echo "HEYYY" "${arg_val[@]}"
-
 mkdir -p "${arg_val[2]}"
 
 # Compiler options
@@ -73,14 +71,16 @@ compiler_options="-W -fbackslash"
 cd "${arg_val[0]}"
 compilation=$(echo "$compiler" "$compiler_options" "$scr" "$lib_dependencies" -o "$out")
 compilation=${compilation//"\\"/"\\\\"} # changing one backslashe to two backslashes
-#echo "$compilation"
+echo "${arg_val[0]}"
+echo "$compilation"
 eval "$compilation"
 
 # Execution
-rm ./*.mod 2>/dev/null
+# rm ./*.mod 2>/dev/null
 if [[ "$out" =~ ".exe" ]]
     then
-      cmd /C "$out"
+      # cmd /C "$out"
+      "$out"
     else
       "$out"
     fi

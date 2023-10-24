@@ -104,16 +104,17 @@ library_compilation()
 
     local compiler="gfortran"
     local compiler_options="-c -W -fbackslash"
+    # local compiler_options="-c -W -fbackslash -fallow-argument-mismatch" # for slatec
 
 
     local sep=$( path_separator "$root_path" )
     local lib_path="$root_path"$sep"$lib_name"
-    local scr="$lib_path"$sep"scr"
+    local src="$lib_path"$sep"src"
     local obj="$lib_path"$sep"obj"
     local mod="$lib_path"$sep"mod"
     local modules_dir="-J"$mod
 
-    mkdir -p "$scr"
+    mkdir -p "$src"
     mkdir -p "$obj"
     mkdir -p "$mod"
 
@@ -137,23 +138,21 @@ library_compilation()
     done
 
     # Compilation
-    cd "$scr"
-    # compilation=$(echo "$compiler" "$compiler_options" "$lib_dependencies" "$modules_dir" *.f90)
-    compilation=$(echo "$compiler" "$compiler_options" *.f)
+    cd "$src"
+    compilation=$(echo "$compiler" "$compiler_options" "$lib_dependencies" "$modules_dir" *.f90)
+    # compilation=$(echo "$compiler" "$compiler_options" *.f) # for slatec
     compilation=${compilation//"\\"/"\\\\"} # changing one backslashe to two backslashes
     echo "$compilation"
     eval "$compilation"
 
-    # Moving new object files
+    # # Moving new object files
     for file in *.o; do
         mv "$file" "$obj"
     done
      
     # Creation of the archive
     cd $obj
-    for file in *.o; do
-        ar cr "$lib_archive" "$file"
-    done
+    ar cr "$lib_archive" *.o
 
     # Cleaning
     mv "$lib_archive" "$lib_path"

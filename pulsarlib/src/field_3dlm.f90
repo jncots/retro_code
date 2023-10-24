@@ -215,4 +215,69 @@ subroutine cfield(this,x,y,z,fl)
 end subroutine cfield
 
 
+subroutine cfield_cubic(this,x,y,z,fl)
+  class(field_3dl) :: this
+  real(8), intent(in) :: x, y, z
+  real(8), intent(out) :: fl(3)
+  real(8) :: fpp1(3), fpp2(3), resx(3,2,2), resy(3,2)
+  real(8) :: x1, x2, y1, y2, z1, z2
+  integer :: i, j, k, im
+  integer :: nx(2), ny(2), nz(2), numx(2)
+  
+  if ((x<this%x(2)).or.(x>this%x(this%nx-1))) then
+   fl=0d0
+   return
+  end if
+  
+  if ((y<this%y(2)).or.(y>this%y(this%ny-1))) then
+   fl=0d0
+   return
+  end if
+  
+  if ((z<this%z(2)).or.(z>this%z(this%nz-1))) then
+   fl=0d0
+   return
+  end if
+  
+  
+  call arr_ind_short(1,this%nx,dble(this%x),x,nx(1),nx(2))
+  call arr_ind_short(1,this%ny,dble(this%y),y,ny(1),ny(2))
+  call arr_ind_short(1,this%nz,dble(this%z),z,nz(1),nz(2))
+  
+  x1=this%x(nx(1))
+  x2=this%x(nx(2))
+  y1=this%y(ny(1))
+  y2=this%y(ny(2))
+  z1=this%z(nz(1))
+  z2=this%z(nz(2))
+ 
+  this%xc1=[x-x1,y-y1,z-z1]
+  
+ 
+  do k=1,2
+   do j=1,2
+    do i=1,2
+     call reind(nx(i),ny(j),nz(k),numx(i))
+    end do
+    
+    fpp1=this%f(numx(1))%bm(:)
+    fpp2=this%f(numx(2))%bm(:)
+    
+    do im=1,3  
+     call lin_int(x1,x2,fpp1(im),fpp2(im),x,resx(im,j,k))
+    end do
+   end do  
+   
+   do im=1,3  
+     call lin_int(y1,y2,resx(im,1,k),resx(im,2,k),y,resy(im,k))
+   end do
+  end do
+   
+  do im=1,3  
+   call lin_int(z1,z2,resy(im,1),resy(im,2),z,fl(im))
+  end do
+ 
+ end subroutine cfield_cubic
+
+
 end module field_3dlm
